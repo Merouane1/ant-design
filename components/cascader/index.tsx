@@ -192,7 +192,7 @@ export default class Cascader extends React.Component<CascaderProps, CascaderSta
     allowClear: true,
   };
 
-  cachedOptions: CascaderOptionType[];
+  cachedOptions: CascaderOptionType[] = [];
 
   private input: Input;
 
