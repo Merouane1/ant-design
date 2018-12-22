@@ -6,7 +6,7 @@ import omit from 'omit.js';
 import KeyCode from 'rc-util/lib/KeyCode';
 import Input from '../input';
 import Icon from '../icon';
-import { ConfigConsumer, ConfigConsumerProps } from '../config-provider';
+import { ConfigConsumer, ConfigConsumerProps, RenderEmptyHandler } from '../config-provider';
 import LocaleReceiver from '../locale-provider/LocaleReceiver';
 import warning from '../_util/warning';
 
@@ -190,7 +190,6 @@ export default class Cascader extends React.Component<CascaderProps, CascaderSta
     options: [],
     disabled: false,
     allowClear: true,
-    notFoundContent: 'Not Found',
   };
 
   cachedOptions: CascaderOptionType[];
@@ -331,7 +330,7 @@ export default class Cascader extends React.Component<CascaderProps, CascaderSta
     return flattenOptions;
   }
 
-  generateFilteredOptions(prefixCls: string | undefined) {
+  generateFilteredOptions(prefixCls: string | undefined, renderEmpty: RenderEmptyHandler) {
     const { showSearch, notFoundContent } = this.props;
     const names: FilledFieldNamesType = getFilledFieldNames(this.props);
     const {
@@ -379,7 +378,11 @@ export default class Cascader extends React.Component<CascaderProps, CascaderSta
       });
     }
     return [
-      { [names.label]: notFoundContent, [names.value]: 'ANT_CASCADER_NOT_FOUND', disabled: true },
+      {
+        [names.label]: notFoundContent || renderEmpty('Cascader'),
+        [names.value]: 'ANT_CASCADER_NOT_FOUND',
+        disabled: true,
+      },
     ];
   }
 
@@ -396,7 +399,7 @@ export default class Cascader extends React.Component<CascaderProps, CascaderSta
   };
 
   renderCascader = (
-    { getPopupContainer: getContextPopupContainer, getPrefixCls }: ConfigConsumerProps,
+    { getPopupContainer: getContextPopupContainer, getPrefixCls, renderEmpty }: ConfigConsumerProps,
     locale: CascaderLocale,
   ) => {
     const { props, state } = this;
@@ -470,7 +473,7 @@ export default class Cascader extends React.Component<CascaderProps, CascaderSta
 
     let options = props.options;
     if (state.inputValue) {
-      options = this.generateFilteredOptions(prefixCls);
+      options = this.generateFilteredOptions(prefixCls, renderEmpty);
     }
     // Dropdown menu should keep previous status until it is fully closed.
     if (!state.popupVisible) {
